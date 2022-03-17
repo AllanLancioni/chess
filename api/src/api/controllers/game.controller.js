@@ -3,7 +3,7 @@
 /** Module dependencies */
 import { GameModel, BoardModel } from '../../models'
 import { createGame } from '../../engine/gameplay/createGame'
-import { convertPositionToCoords, isValidPosition } from '../../engine/utils/positions-coords'
+import { convertPositionToCoords, isValidPosition } from '../../engine/utils/convertPositionsCoords'
 
 export default {
 
@@ -22,10 +22,10 @@ export default {
   async create(req, res, next) {
     try {
       const game = createGame({ timeInMinutes: 10 }).init()
-      const respBoard = await BoardModel.create(game.actualBoard)
+      const respBoard = await BoardModel.create({ squares: game.actualBoard.toJSON() })
       game.boardHistoric.push(respBoard._id)
       game.actualBoard = respBoard._id
-      const respGame = await GameModel.create(game)
+      const respGame = await GameModel.create(game.toJSON())
       res.status(201).json({ ...respGame.toJSON(), actualBoard: respBoard })
     } catch (error) {
       next(error)
@@ -40,7 +40,7 @@ export default {
       if (!respGame)
         return res.status(404).json({ status: 404, message: 'Not Found' })
       const game = createGame(respGame.toJSON()).init()
-      res.json(game)
+      res.json(game.toJSON())
     } catch (error) {
       next(error)
     }
@@ -51,7 +51,6 @@ export default {
   async getAvailableMoves({ params, query }, res, next) {
     try {
       let row, col
-      console.log(query);
       if (query.position)
         [row, col] = convertPositionToCoords(query.position)
       else
@@ -88,20 +87,22 @@ export default {
     if (!respGame)
       return res.status(404).json({ status: 404, message: 'Not Found' })
 
-    const game = createGame(respGame.toJSON()).init()
+    const game = createGame(respGame.toJSON()).init().makeAMove(from, to)
     
     try {
-      const squares = game.makeAMove(from, to)
-      delete game.actualBoard._id
-      const respBoard = await BoardModel.create({ ...game.actualBoard, squares })
-      game.boardHistoric.push(respBoard._id)
+      const respBoard = await BoardModel.create({ 
+        ...game.actualBoard,
+        _id: undefined,
+        squares: game.actualBoard.toJSON() 
+      })
+      game.boardHistoric.unshift(respBoard._id)
       await GameModel.findByIdAndUpdate(
         respGame._id,
-        { $set: { ...game, actualBoard: respBoard._id } },
+        { $set: { ...game.toJSON(), actualBoard: respBoard._id } },
         { new: true }
       )
 
-      res.json(game)
+      res.json(game.toJSON())
     } catch (error) {
       console.error(error)
       res.status(400).json({ status: 400, error: error.message })

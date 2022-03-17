@@ -1,22 +1,30 @@
 import { getPieceByNotation } from "../pieces"
-import { convertCoordsToPosition } from "../utils/positions-coords"
+import { isPrototypeOf } from "../utils/isPrototypeOf"
+import { convertCoordsToPosition } from "../utils/convertPositionsCoords"
+import { Board } from './createBoard'
 
-export const createPositionContext = boardSquaresOrPosition => Object.create({
+export function createPositionContext(boardSquaresOrConfig) {
+  return Object.create(PositionContext, {
+    _boardSquaresOrConfig: { value: boardSquaresOrConfig }
+  })
+}
+
+var PositionContext = {
 
   init(coords) {
     if (!(coords instanceof Array))
       return null
 
-    const boardPosition = boardSquaresOrPosition instanceof Array
-      ? boardSquaresOrPosition[coords[0]][coords[1]]
-      : boardSquaresOrPosition
+    const position =  isPrototypeOf(this._boardSquaresOrConfig, Board) 
+      ? this._boardSquaresOrConfig.get(coords) 
+      : this._boardSquaresOrConfig
 
     return Object.assign(this, {
       coords,
-      player: boardPosition?.player || null,
-      movesCount: boardPosition?.movesCount ?? null,
-      pieceNotation: boardPosition?.pieceNotation,
-      piece: getPieceByNotation(boardPosition?.pieceNotation),
+      player: position?.player || null,
+      movesCount: position?.movesCount ?? null,
+      pieceNotation: position?.pieceNotation,
+      piece: getPieceByNotation(position?.pieceNotation),
       position: convertCoordsToPosition(coords),
     })
   },
@@ -55,4 +63,4 @@ export const createPositionContext = boardSquaresOrPosition => Object.create({
     return typeof boardPosition === 'object' && boardPosition.__proto === this._proto__
   }
 
-})
+}

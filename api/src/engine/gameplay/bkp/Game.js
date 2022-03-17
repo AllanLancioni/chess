@@ -1,7 +1,7 @@
 // PATTERN PROTOTYPE INHERITANCE
 
-import { createMovingPreparationContext } from "./createMovingPreparationContext"
-import { createBoard } from "./createBoard"
+import { createMovingPreparationContext } from "../createMovingPreparationContext"
+import { createBoard } from "../createBoard"
 
 export default function Game({ player1 = null, player2 = null, timeInMinutes = 10 } = {}) {
   this.player1 = player1

@@ -1,10 +1,14 @@
-import { createMoveContext } from './createMoveContext'
+import toJSONDeep from '../utils/toJSONDeep'
 import { createPositionContext } from './createPositionContext'
 
-export const createMovingPreparationContext = () => Object.create({
+export function createMovingPreparationContext() {
+  return Object.create(MovingPreparationContext)
+}
+
+export var MovingPreparationContext = {
 
   init(board, rowOrigin, colOrigin) {
-    if (!board[rowOrigin] || board[rowOrigin][colOrigin]?.pieceNotation === null)
+    if (board?.get(rowOrigin, colOrigin)?.pieceNotation === null)
       throw new Error('Pass a valid position!')
 
     return Object.assign(this, {
@@ -12,6 +16,14 @@ export const createMovingPreparationContext = () => Object.create({
       positionContext: createPositionContext(board).init([rowOrigin, colOrigin]),
       board,
     })
+  },
+
+  toJSON() {
+    return toJSONDeep.call(this)
+  },
+
+  isKingInCheck() {
+
   },
 
   moveTo(rowTarget, colTarget) {
@@ -24,13 +36,14 @@ export const createMovingPreparationContext = () => Object.create({
     if (!targetSquare)
       throw new Error(`Cannot move to the desired position ${rowTarget}, ${colTarget}!`)
 
-    return createMoveContext()
-      .init({
-        board: this.board,
-        originPosCtx: this.positionContext,
-        targetPosCtx: createPositionContext(this.board).init([rowTarget, colTarget]),
-      })
-      .move()
+    // return createMoveContext()
+    //   .init({
+    //     board: this.board,
+    //     originPosCtx: this.positionContext,
+    //     targetPosCtx: createPositionContext(this.board).init([rowTarget, colTarget]),
+    //   })
+    //   .move()
+    return this.board.move(this.positionContext, createPositionContext(this.board).init([rowTarget, colTarget]))
   },
 
   getNormalRulesMoves() {
@@ -61,11 +74,11 @@ export const createMovingPreparationContext = () => Object.create({
   },
 
   updateBoardWithSelectWithPossibleSquares() {
-
-    for (const { coords: [row, col] } of this.possibleSquares) {
-      // TODO: replace (this.board[row, col] || {}) when update BoardSchema
-      this.board[row][col] = { ...(this.board[row][col] || {}), isPossibleMove: true }
+    for (const { coords } of this.possibleSquares) {
+      this.board.get(coords).isPossibleMove = true
+      this.board.get(coords).isPossibleCapture = this.board.get(coords).player
     }
+    this.board.get(this.positionContext.coords).isSelected = true
     return this
   },
 
@@ -94,7 +107,7 @@ export const createMovingPreparationContext = () => Object.create({
     return (relativeRow, relativeCol) => {
       const squaresToAdd = []
       let square, row = relativeRow, col = relativeCol
-      
+
       for (let i = 1; i <= rule.maxSquares; i++) {
         row = relativeRow * i
         col = relativeCol * i
@@ -126,4 +139,4 @@ export const createMovingPreparationContext = () => Object.create({
       return !!targetPosCtx.piece
     return true
   }
-})
+}

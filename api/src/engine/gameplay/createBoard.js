@@ -1,12 +1,19 @@
 import { createPositionContext } from './createPositionContext'
 
-export const createBoard = loadedObject => Object.create({
+export function createBoard(loadedObject) {
+  return Object.create(Board, {
+    _loadedObject: { value: loadedObject }
+  })
+}
+
+export var Board = {
 
   init() {
 
     Object.assign(this, {
       squares: null,
-      ...(loadedObject || {})
+      capturedPieces: [],
+      ...(this._loadedObject || {})
     })
 
     if (!this.squares) {
@@ -32,6 +39,12 @@ export const createBoard = loadedObject => Object.create({
     }
   },
 
+  get(row, col) {
+    if (row instanceof Array && col === undefined)
+      [row, col] = row
+    return (this.squares[row] && this.squares[row][col]) || null
+  },
+
   mapSquares(fn, squares = this.squares) {
     const board = createEmptyBoardSquares()
     for (let i = 0; i < 8; i++) {
@@ -40,10 +53,42 @@ export const createBoard = loadedObject => Object.create({
       }
     }
     return board
+  },
+
+  move(originPosCtx, targetPosCtx) {
+
+    // const newBoard = createBoard({ squares: board.toJSON() }).init()
+
+
+    this.updateOnBoard(targetPosCtx.updatePosition(originPosCtx))
+    this.updateOnBoard(originPosCtx.cleanPosition())
+    if (targetPosCtx.hasCaptured) {
+      this.capturedPieces.push({
+        pieceNotation: targetPosCtx.piece.notation,
+        player: targetPosCtx.player
+      })
+    }
+    return this
+  },
+
+  updateOnBoard({ player, piece, movesCount, coords }) {
+    Object.assign(this.get(coords), {
+      player,
+      piece,
+      movesCount,
+      pieceNotation: piece?.notation ?? null,
+    })
+    return this
+  },
+
+
+  toJSON() {
+    return this.mapSquares((square, coords) => {
+      return { ...square, piece: undefined }
+    })
   }
 
-})
-
+}
 
 export function createEmptyBoardSquares() {
   return Array(8).fill(null).map(() => Array(8).fill(null))
