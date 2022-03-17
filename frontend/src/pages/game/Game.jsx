@@ -47,7 +47,7 @@ function Game() {
   }
 
   return (
-    <section className="container py-3 mx-auto">
+    <section className="container mx-auto py-10 text-center">
       <h1 className="text-3xl">Game {gameId}</h1>
       {(() => {
         if (gameError)

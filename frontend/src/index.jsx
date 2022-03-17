@@ -6,13 +6,15 @@ import Home from './pages/Home'
 import Game from './pages/game/Game'
 
 ReactDOM.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="game/:gameId" element={<Game />} />
-      </Routes>
-    </BrowserRouter>
+  <React.StrictMode >
+    <main className="bg-neutral-200" style={{ height: '100vh' }}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="game/:gameId" element={<Game />} />
+        </Routes>
+      </BrowserRouter>
+    </main>
   </React.StrictMode>,
   document.getElementById('root')
 )

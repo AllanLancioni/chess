@@ -12,9 +12,9 @@ function Home() {
   }
 
   return (
-    <section className="container py-3 mx-auto">
+    <section className="container mx-auto">
       <h1 className="text-3xl">Games</h1>
-      <div className="my-3">
+      <div className="my-4">
         {(() => {
           if (gamesIsLoading)
             return <p className="text-gray-500">Loading...</p>
