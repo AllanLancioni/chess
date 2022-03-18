@@ -1,4 +1,5 @@
 import toJSONDeep from '../utils/toJSONDeep'
+import { createBoard } from './createBoard'
 import { createPositionContext } from './createPositionContext'
 
 export function createMovingPreparationContext() {
@@ -22,10 +23,6 @@ export var MovingPreparationContext = {
     return toJSONDeep.call(this)
   },
 
-  isKingInCheck() {
-
-  },
-
   moveTo(rowTarget, colTarget) {
 
     const targetSquare = this
@@ -36,14 +33,10 @@ export var MovingPreparationContext = {
     if (!targetSquare)
       throw new Error(`Cannot move to the desired position ${rowTarget}, ${colTarget}!`)
 
-    // return createMoveContext()
-    //   .init({
-    //     board: this.board,
-    //     originPosCtx: this.positionContext,
-    //     targetPosCtx: createPositionContext(this.board).init([rowTarget, colTarget]),
-    //   })
-    //   .move()
-    return this.board.move(this.positionContext, createPositionContext(this.board).init([rowTarget, colTarget]))
+    return this.board.move(
+      this.positionContext,
+      createPositionContext(this.board).init([rowTarget, colTarget])
+    )
   },
 
   getNormalRulesMoves() {
@@ -138,5 +131,20 @@ export var MovingPreparationContext = {
     if (rule?.specialRules?.includes('onlyWithCapture'))
       return !!targetPosCtx.piece
     return true
+  },
+
+  revalidateMoves() {
+    for (let possibleMove of [...this.possibleSquares]) {
+      const willBeInCheck = createBoard({ squares: this.board.toJSON() })
+        .init()
+        .move(this.positionContext, possibleMove)
+        .isKingInCheck(this.positionContext.player)
+      if (willBeInCheck)
+        this.possibleSquares.splice(
+          this.possibleSquares.findIndex(x => x === possibleMove),
+          1
+        )
+    }
+    return this
   }
 }

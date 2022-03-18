@@ -1,3 +1,4 @@
+import { createMovingPreparationContext } from './createMovingPreparationContext'
 import { createPositionContext } from './createPositionContext'
 
 export function createBoard(loadedObject) {
@@ -12,13 +13,16 @@ export var Board = {
 
     Object.assign(this, {
       squares: null,
-      capturedPieces: [],
+      capturedPiecesPlayer1: [],
+      capturedPiecesPlayer2: [],
+      isInCheckPlayer1: true,
+      isInCheckPlayer2: true,
       ...(this._loadedObject || {})
     })
 
     if (!this.squares) {
       this.squares = createEmptyBoardSquares()
-      this.squares[0] = this.squares[7] = ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+      this.squares[0] = this.squares[7] = ['R', 'N', 'B', 'K', 'Q', 'B', 'N', 'R']
       this.squares[1] = this.squares[6] = Array(8).fill('')
 
       this.squares = this.mapSquares((square, coords) => createPositionContext({
@@ -46,44 +50,55 @@ export var Board = {
   },
 
   mapSquares(fn, squares = this.squares) {
-    const board = createEmptyBoardSquares()
+    const boardSquares = createEmptyBoardSquares()
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
-        board[i][j] = fn(squares[i][j], [i, j], squares)
+        boardSquares[i][j] = fn(squares[i][j], [i, j], squares)
       }
     }
-    return board
+    return boardSquares
   },
 
   move(originPosCtx, targetPosCtx) {
-
-    // const newBoard = createBoard({ squares: board.toJSON() }).init()
-
-
     this.updateOnBoard(targetPosCtx.updatePosition(originPosCtx))
     this.updateOnBoard(originPosCtx.cleanPosition())
-    if (targetPosCtx.hasCaptured) {
-      this.capturedPieces.push({
-        pieceNotation: targetPosCtx.piece.notation,
-        player: targetPosCtx.player
-      })
+    if (targetPosCtx.hasCaptured)
+      this[`capturedPiecesPlayer${targetPosCtx.player}`].push(targetPosCtx.piece.notation)
+    return this
+  },
+
+  updateOnBoard(posCtx) {
+    const [row, col] = posCtx.coords
+    this.squares[row][col] = posCtx
+    return this
+  },
+
+  isKingInCheck(actualPlayerTurn) {
+    let king, actualInCheck = false
+    const enemies = [], isInCheckProp = `isInCheckPlayer${actualPlayerTurn}`
+    for (const square of this.squares.flat().filter(square => square.player)) {
+      if (square.player !== actualPlayerTurn)
+        enemies.push(square)
+      else if (square.pieceNotation === 'K')
+        king = square
     }
-    return this
-  },
 
-  updateOnBoard({ player, piece, movesCount, coords }) {
-    Object.assign(this.get(coords), {
-      player,
-      piece,
-      movesCount,
-      pieceNotation: piece?.notation ?? null,
-    })
-    return this
+    for(let enemy of enemies) {
+      enemy.possibleSquares = createMovingPreparationContext()
+        .init(this, ...enemy.coords)
+        .getNormalRulesMoves()
+        .possibleSquares
+      if (enemy.possibleSquares.some(square => square.position === king.position)) {
+        actualInCheck = true
+        break
+      }
+    }
+    this[isInCheckProp] = actualInCheck
+    return this[isInCheckProp]
   },
-
 
   toJSON() {
-    return this.mapSquares((square, coords) => {
+    return this.mapSquares(square => {
       return { ...square, piece: undefined }
     })
   }

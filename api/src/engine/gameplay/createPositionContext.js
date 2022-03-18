@@ -32,31 +32,33 @@ var PositionContext = {
   updatePosition(movedPositionContext) {
     if (!movedPositionContext?.piece && !this.isValidBoardPosition(movedPositionContext))
       throw new Error(`Got invalid board position context at ${this.coords}!`)
-    const { piece, player, movesCount } = movedPositionContext
+    const { piece, player, movesCount, pieceNotation } = movedPositionContext
     if (player === this.player)
       throw new Error(`Player ${player} can not capture own piece at ${this.coords}!`)
 
-    Object.assign(this, {
+    return createPositionContext({
+      ...this,
       player,
       piece,
-      pieceNotation: piece.notation,
+      pieceNotation: pieceNotation,
       movesCount: movesCount + 1,
       hasCaptured: this.piece?.notation ?? null
-    })
-    return this
+    }).init(this.coords)
   },
 
   cleanPosition() {
     if (!this.piece)
       throw new Error(`Can not move a piece if it not exists at ${this.coords}!`)
-    Object.assign(this, {
+
+    return createPositionContext({
+      ...this,
       player: null,
       piece: null,
       pieceNotation: null,
       movesCount: null,
       hasCaptured: undefined
-    })
-    return this
+    }).init(this.coords)
+
   },
 
   isValidBoardPosition(boardPosition) {

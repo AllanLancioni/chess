@@ -32,6 +32,7 @@ export var Game = {
     const movingPreparationContext = createMovingPreparationContext()
       .init(this.actualBoard, rowOrigin, colOrigin)
       .getNormalRulesMoves()
+      .revalidateMoves()
       .updateBoardWithSelectWithPossibleSquares()
       .toJSON()
     return movingPreparationContext
