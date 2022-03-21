@@ -8,7 +8,8 @@ export const GameScheme = new Schema({
   timeRemainingPlayer2: { type: Number, default: 10 * 60 * 1000 },
   actualPlayerTurn: { type: Number, required: true, default: 1 },
   boardHistoric: [{ type: ObjectId, ref: 'Board', required: true }],
-  actualBoard: { type: ObjectId, ref: 'Board', required: true }
+  actualBoard: { type: ObjectId, ref: 'Board', required: true },
+  status: { type: String, enum: [null, 'PLAYER1_WINS', 'PLAYER2_WINS', 'DRAW'], default: null }
 })
 
 export const GameModel = model('Game', GameScheme)

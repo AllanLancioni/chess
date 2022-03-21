@@ -22,7 +22,7 @@ export default {
   async create(req, res, next) {
     try {
       const game = createGame({ timeInMinutes: 10 }).init()
-      const respBoard = await BoardModel.create({ squares: game.actualBoard.toJSON() })
+      const respBoard = await BoardModel.create(game.actualBoard.toJSON())
       game.boardHistoric.push(respBoard._id)
       game.actualBoard = respBoard._id
       const respGame = await GameModel.create(game.toJSON())
@@ -92,8 +92,7 @@ export default {
     try {
       const respBoard = await BoardModel.create({ 
         ...game.actualBoard,
-        _id: undefined,
-        squares: game.actualBoard.toJSON() 
+        _id: undefined
       })
       game.boardHistoric.unshift(respBoard._id)
       await GameModel.findByIdAndUpdate(

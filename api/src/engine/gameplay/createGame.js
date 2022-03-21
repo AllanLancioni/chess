@@ -20,6 +20,7 @@ export var Game = {
       timeRemainingPlayer2: timeInMinutes * 60 * 1000,
       actualPlayerTurn: 1,
       boardHistoric: [],
+      status: null,
       ...(this._loadedObject || {}),
       actualBoard: createBoard(this._loadedObject?.actualBoard).init(),
     })
@@ -29,6 +30,8 @@ export var Game = {
   getAvailableMoves(rowOrigin, colOrigin) {
     if (this.actualBoard.get(rowOrigin, colOrigin)?.player !== this.actualPlayerTurn)
       throw new Error('Not player turn!')
+    if (this.status !== null)
+      throw new Error('Can\'t get available moves of a finished game!')
     const movingPreparationContext = createMovingPreparationContext()
       .init(this.actualBoard, rowOrigin, colOrigin)
       .getNormalRulesMoves()
@@ -36,6 +39,31 @@ export var Game = {
       .updateBoardWithSelectWithPossibleSquares()
       .toJSON()
     return movingPreparationContext
+  },
+
+  verifyCheckMate(player) {
+
+    const squares = this.actualBoard.squares.flat().filter(square => square.player)
+    if (squares.length === 2 && squares.every(({pieceNotation}) => pieceNotation === 'K')) {
+      this.status = 'DRAW'
+      return
+    }
+
+    let hasAvailableMoves
+    const playerPieces = squares.filter(square => square.player === player)
+    for (const { coords } of playerPieces) {
+      const { possibleSquares } = createMovingPreparationContext()
+        .init(this.actualBoard, ...coords)
+        .getNormalRulesMoves()
+        .revalidateMoves()
+      if (possibleSquares.length) {
+        hasAvailableMoves = true
+        break
+      }
+    }
+    if (!hasAvailableMoves)
+      this.status = this.actualBoard[`isInCheckPlayer${player}`] ? `PLAYER${player}_WINS` : 'DRAW'
+    return this
   },
 
   makeAMove(coordsOrigin, coordsTarget) {
@@ -47,6 +75,8 @@ export var Game = {
       .moveTo(...coordsTarget)
 
     this.actualPlayerTurn = (this.actualPlayerTurn % 2) + 1
+    this.actualBoard.isKingInCheck(this.actualPlayerTurn)
+    this.verifyCheckMate(this.actualPlayerTurn)
 
     return this
   },

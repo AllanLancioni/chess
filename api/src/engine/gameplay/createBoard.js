@@ -60,6 +60,7 @@ export var Board = {
   },
 
   move(originPosCtx, targetPosCtx) {
+    
     this.updateOnBoard(targetPosCtx.updatePosition(originPosCtx))
     this.updateOnBoard(originPosCtx.cleanPosition())
     if (targetPosCtx.hasCaptured)
@@ -98,10 +99,19 @@ export var Board = {
   },
 
   toJSON() {
+    return {
+      ...this,
+      squares: this.toSquaresJSON()
+    }
+  },
+
+  toSquaresJSON() {
     return this.mapSquares(square => {
       return { ...square, piece: undefined }
     })
   }
+
+
 
 }
 

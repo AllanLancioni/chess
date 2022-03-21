@@ -66,6 +66,17 @@ export var MovingPreparationContext = {
     return this
   },
 
+  getSpecialRulesMoves() {
+    const specialRules = this.positionContext.piece.rules.filter(({ type }) => type === 'special')
+    for (const { name } of specialRules) {
+      switch (name) {
+        case 'hooking':
+          
+          break
+      } 
+    }
+  },
+
   updateBoardWithSelectWithPossibleSquares() {
     for (const { coords } of this.possibleSquares) {
       this.board.get(coords).isPossibleMove = true
@@ -135,7 +146,7 @@ export var MovingPreparationContext = {
 
   revalidateMoves() {
     for (let possibleMove of [...this.possibleSquares]) {
-      const willBeInCheck = createBoard({ squares: this.board.toJSON() })
+      const willBeInCheck = createBoard(this.board.toJSON())
         .init()
         .move(this.positionContext, possibleMove)
         .isKingInCheck(this.positionContext.player)

@@ -22,7 +22,7 @@ function Home() {
             return <p className="text-red-700">Failed fetch games</p>
           return (
             gamesData?.data?.map(game => (
-              <div key={game._id} className="text-blue-500 hover:text-blue-400">
+              <div key={game._id} className="text-slate-600 hover:text-slate-700">
                 <Link to={'game/' + game._id}>Game: {game._id}</Link>
               </div>
             ))
@@ -32,7 +32,7 @@ function Home() {
 
       <button
         onClick={() => createNewGame()}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded"
       >
         New Game
       </button>

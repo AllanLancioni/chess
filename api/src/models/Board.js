@@ -7,10 +7,14 @@ const SquareSchema = new Schema({
   movesCount: { type: Number, default: 0 },
   coords: { type: [Number], required: true },
   position: { type: String, required: true },
-}, { _id : false })
+}, { _id: false })
 
 export const BoardScheme = new Schema({
-  squares: [[SquareSchema]]
+  squares: [[SquareSchema]],
+  capturedPiecesPlayer1: [String],
+  capturedPiecesPlayer2: [String],
+  isInCheckPlayer1: { type: Boolean, default: false },
+  isInCheckPlayer2: { type: Boolean, default: false },
 })
 
 export const BoardModel = model('Board', BoardScheme)

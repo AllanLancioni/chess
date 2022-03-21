@@ -20,6 +20,10 @@ const rules = [
   {
     type: 'special',
     name: 'queenCastling'
+  },
+  {
+    type: 'special',
+    name: 'hooking'
   }
 ]
 

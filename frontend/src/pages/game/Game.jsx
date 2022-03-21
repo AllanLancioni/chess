@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { useGameById, useGetAvailableMoves, useMovePiece } from "../../hooks"
 import Board from "./Board"
+import EndGameAlert from "./EndGameAlert"
 
 function Game() {
 
@@ -12,15 +13,13 @@ function Game() {
   const [availableMoves, setAvailableMoves] = useState(null)
   const invertBoard = true
 
-  useEffect(() => {console.log({game})}, [game])
-
-  const squares = availableMoves?.board || game?.actualBoard?.squares
+  const squares = availableMoves?.board?.squares || game?.actualBoard?.squares
 
   const onSelectSquare = async (square) => {
 
     console.log(square)
     const [row, col] = square.coords
-  
+
     if (square?.row === row && square?.col === col)
       return setAvailableMoves(null)
 
@@ -47,23 +46,26 @@ function Game() {
   }
 
   return (
-    <section className="container mx-auto py-10 text-center">
-      <h1 className="text-3xl">Game {gameId}</h1>
-      {(() => {
-        if (gameError)
-          return <p className="text-red-700">Error Fetching game...</p>
-        if (gameIsLoading)
-          return <p className="text-gray-500">Game is loading...</p>
-        if (game && squares)
-          return (
-            <>
-              <h2 className="text-xl">Player {game?.actualPlayerTurn} turn</h2>
-              <Board {...{ squares, gameId, invertBoard, onSelectSquare }} />
-            </>
-          )
-      })()}
-      <Link to="../" className="text-blue-500 hover:text-blue-400">Go back</Link>
-    </section>
+    <>
+      <EndGameAlert gameStatus={game?.status} />
+      <section className="container mx-auto py-10 text-center">
+        <h1 className="text-3xl">Game {gameId}</h1>
+        {(() => {
+          if (gameError)
+            return <p className="text-red-700">Error Fetching game...</p>
+          if (gameIsLoading)
+            return <p className="text-gray-500">Game is loading...</p>
+          if (game && squares)
+            return (
+              <>
+                <h2 className="text-xl">Player {game?.actualPlayerTurn} turn</h2>
+                <Board {...{ squares, gameId, invertBoard, onSelectSquare }} />
+              </>
+            )
+        })()}
+        <Link to="../" className="text-blue-500 hover:text-blue-400">Go back</Link>
+      </section>
+    </>
   )
 }
 

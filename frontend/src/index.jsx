@@ -7,7 +7,7 @@ import Game from './pages/game/Game'
 
 ReactDOM.render(
   <React.StrictMode >
-    <main className="bg-neutral-200" style={{ height: '100vh' }}>
+    <main className="bg-neutral-200 text-slate-900" style={{ height: '100vh' }}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />

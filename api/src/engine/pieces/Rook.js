@@ -7,6 +7,10 @@ const rules = [
     movingHorizontally: 0,
     maxSquares: Infinity
   },
+  {
+    type: 'special',
+    name: 'hooking'
+  }
 ]
 
 const Rook = new Piece('R', rules)

@@ -5,7 +5,7 @@ function Board({ squares, invertBoard, onSelectSquare }) {
   if (!squares)
     return null
 
-  const squaresPlot = invertBoard ? [...squares].reverse().map(row => [...row].reverse()) : squares
+  const squaresPlot = invertBoard ? [...squares].reverse().map(row => [...row]) : squares
 
   const getSquareClassNames = ({ coords: [row, col], isPossibleMove, isSelected, isPossibleCapture }) => {
     if (isSelected)
@@ -13,7 +13,7 @@ function Board({ squares, invertBoard, onSelectSquare }) {
     return `
       ${isPossibleMove ? 'possible-move ' : ''}
       ${isPossibleCapture ? 'possible-capture ' : ''}
-      ${(col + row) % 2 === 0 ? 'bg-slate-600' : 'bg-slate-400'}
+      ${(col + row) % 2 === 0 ? 'bg-slate-400' : 'bg-slate-600'}
     `
   }
 
