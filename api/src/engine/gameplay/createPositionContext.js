@@ -40,10 +40,23 @@ var PositionContext = {
       ...this,
       player,
       piece,
-      pieceNotation: pieceNotation,
+      pieceNotation,
       movesCount: movesCount + 1,
       hasCaptured: this.piece?.notation ?? null
-    }).init(this.coords)
+    }).init(this.coords).checkForPromotion()
+  },
+
+  checkForPromotion() {
+    if (this.pieceNotation !== '' || !this.player)
+      return this
+    if (
+      (this.player === 1 && this.coords[0] === 7) ||
+      (this.player === 2 && this.coords[0] === 0)
+    ) {
+      this.piece = getPieceByNotation('Q')
+      this.pieceNotation = this.piece.notation
+    }
+    return this
   },
 
   cleanPosition() {

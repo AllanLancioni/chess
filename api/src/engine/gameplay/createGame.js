@@ -4,7 +4,7 @@ import { createBoard } from './createBoard'
 import { createMovingPreparationContext } from './createMovingPreparationContext'
 
 export function createGame(loadedObject) {
-  return Object.create(Game, {_loadedObject: { value: loadedObject }})
+  return Object.create(Game, { _loadedObject: { value: loadedObject } })
 }
 
 export var Game = {
@@ -44,7 +44,7 @@ export var Game = {
   verifyCheckMate(player) {
 
     const squares = this.actualBoard.squares.flat().filter(square => square.player)
-    if (squares.length === 2 && squares.every(({pieceNotation}) => pieceNotation === 'K')) {
+    if (squares.length === 2 && squares.every(({ pieceNotation }) => pieceNotation === 'K')) {
       this.status = 'DRAW'
       return
     }
@@ -61,8 +61,10 @@ export var Game = {
         break
       }
     }
-    if (!hasAvailableMoves)
-      this.status = this.actualBoard[`isInCheckPlayer${player}`] ? `PLAYER${player}_WINS` : 'DRAW'
+    if (!hasAvailableMoves) {
+      const winner = player === 1 ? 2 : 1
+      this.status = this.actualBoard[`isInCheckPlayer${player}`] ? `PLAYER${winner}_WINS` : 'DRAW'
+    }
     return this
   },
 
