@@ -1,1 +1,1 @@
-web: node node --experimental-modules --es-module-specifier-resolution=node api/index.js
+web: node --experimental-modules --es-module-specifier-resolution=node api/index.js
